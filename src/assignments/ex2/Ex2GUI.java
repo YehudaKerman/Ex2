@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class Ex2GUI {
 
-	private static Sheet table; // this is the main data (an implementation of the Sheet interface).
+	private static assignments.ex2.Sheet table; // this is the main data (an implementation of the Sheet interface).
 	private static Index2D cord = null; // a table entry used by the GUI of setting up a cell value / form
 	public Ex2GUI() {;}  // an empty (redundant) constructor.
 
