@@ -42,12 +42,53 @@ public class SCellTest {
         }
     }
     @Test
-    public void isFormTest (){
-        String [] goodForm = {"1+2*(3+6)","((2+60+3)-(2-5)*6)","(1+2)*(3+6)"};
+    public void isValidFormTest(){
+        String [] goodForm = {"1+2*(3+6)","((2+60+3)-(2-5)*6)","(1+2)*(3+6)","A2"};
+        for (int i = 0; i < goodForm.length; i = i + 1) {
+            boolean ok = SCell.isValidForm(goodForm[i]);
+            assertTrue(ok);
+        }
+        String [] badForm = {"1a","sasdgf","dfas","=1++2.5","=((9+4)","=asds1+2"};
+        for (int i = 0; i < badForm.length; i = i + 1) {
+            boolean ok = SCell.isValidForm(badForm[i]);
+            assertFalse(ok);
+        }
+    }
+    @Test
+    public void isFormTest() {
+        String[] goodForm = {"=1+2*(3+6)", "=((2+60+3)-(2-5)*6)", "=(1+2)*(3+6)","=A2"};
         for (int i = 0; i < goodForm.length; i = i + 1) {
             boolean ok = SCell.isForm(goodForm[i]);
             assertTrue(ok);
         }
-        String [] badForm = {"1a","sasdgf","dfas","A2","=1++2.5","=((9+4)"};
+        String[] badForm = {"1a", "sasdgf", "dfas", "A2", "=1++2.5", "=((9+4)","=asds1+2","=A100","=@56"};
+        for (int i = 0; i < badForm.length; i = i + 1) {
+            boolean ok = SCell.isForm(badForm[i]);
+            assertFalse(ok);
+
+        }
+    }
+    @Test
+    public void isCellTest() {
+        String[] goodCell = {"=a3", "=B6", "=(G16)","=y2","A5"};
+        for (int i = 0; i < goodCell.length; i = i + 1) {
+            boolean ok = SCell.isCell(goodCell[i]);
+            assertTrue(ok);
+        }
+        String[] badCell = {"1a", "k566", "R989", "(A2","&66"};
+        for (int i = 0; i < badCell.length; i = i + 1) {
+            boolean ok = SCell.isCell(badCell[i]);
+            assertFalse(ok);
+
+        }
+    }
+    @Test
+    public void getCellNameTest() {
+        String s = "=A2+36+b98+r65+85*2/30";
+        String [] expected = {"A2","b98","r65"};
+        String [] actual = SCell.getCellName(s);
+        for (int i = 0; i < expected.length; i = i + 1) {
+            assertEquals(expected[i], actual[i]);
+        }
     }
 }
