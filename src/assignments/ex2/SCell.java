@@ -8,24 +8,23 @@ public class SCell implements Cell {
     private int type;
     private int order;
     private String name;
+    private static String value;
 
-    public SCell(String data, String name) {
-        setName(name);
-        setData(data);
-        if (isNumber(line)) {
-            setType(2);
-            setOrder(0);
-        } else if ((isText(line))) {
-            setType(1);
-            setOrder(0);
-        } else if (isForm(line)) {
-            setType(3);
-            setOrder(getOrder());
+    public SCell(String data, int x, int y) {
+        for (int i=0;i<26;i++)
+        {
+                name = Ex2Utils.ABC[x].concat(Integer.toString(y));
         }
+        setData(data);
     }
 
     public SCell(String data) {
-        this(data, "A0");
+        this(data, 0,0);
+    }
+
+    //public SCell(String data, Ex2Sheet table) {}
+    public static void setValue(String newValue) {
+        value = newValue;
     }
 
     @Override
@@ -43,10 +42,11 @@ public class SCell implements Cell {
     //@Override
     @Override
     public String toString() {
-        if (getType() == 1||getType() == 2||getType() == 3) {
+        if (getType() == 1||getType() == 3) {
             return getData();
-        }
-        else if (getType() == -1) {
+        } else if (getType() == 2) {
+            return Double.toString(Double.parseDouble(getData()));
+        } else if (getType() == -1) {
             return Ex2Utils.ERR_CYCLE;
         }
         else if (getType() == -2) {
@@ -62,6 +62,20 @@ public class SCell implements Cell {
     public void setData(String s) {
         if (!s.equals("")&&s!=null) {
             line = s;
+            if (isNumber(line)) {
+                setType(Ex2Utils.NUMBER);
+                setOrder(0);
+            } else if ((isText(line))) {
+                setType(Ex2Utils.TEXT);
+                setOrder(0);
+            } else if (isForm(line)) {
+                setType(Ex2Utils.FORM);
+                setOrder(getOrder());
+            }
+            else
+            {
+                setType(Ex2Utils.ERR_FORM_FORMAT);
+            }
         }
     }
 
@@ -254,7 +268,7 @@ public class SCell implements Cell {
                 }
             catch (NumberFormatException e)
             {
-                if (Character.isLetter(s.charAt(i)))
+                if (Character.isLetter(s.charAt(i))||s.charAt(i)=='.'||s.charAt(i)==',')
                 {
                     continue;
                 }

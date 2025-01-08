@@ -1,5 +1,6 @@
 package assignments.ex2;
 import java.io.IOException;
+import java.util.ArrayList;
 // Add your documentation below:
 
 public class Ex2Sheet implements Sheet {
@@ -8,7 +9,7 @@ public class Ex2Sheet implements Sheet {
         table = new SCell[x][y];
         for(int i=0;i<x;i=i+1) {
             for(int j=0;j<y;j=j+1) {
-                table[i][j] = new SCell("-1");
+                table[i][j] = new SCell(" ",x,y);
             }
         }
         eval();
@@ -21,12 +22,21 @@ public class Ex2Sheet implements Sheet {
     @Override
     public String value(int x, int y) {
         String ans = Ex2Utils.EMPTY_CELL;
-        // Add your code here
-
         SCell c = get(x,y);
         if(c!=null) {ans = c.toString();}
-
-        /////////////////////
+        switch(c.getType()) {
+            case 1, 2:
+                ans = c.toString();
+                break;
+            case 3:
+                ans = eval(x,y);
+                break;
+            case -2:
+                ans = Ex2Utils.ERR_FORM;
+                break;
+            case -1:
+                ans = Ex2Utils.ERR_CYCLE;
+        }
         return ans;
     }
 
@@ -36,11 +46,21 @@ public class Ex2Sheet implements Sheet {
     }
 
     @Override
-    public Cell get(String cords) {
-        Cell ans = null;
-        // Add your code here
-
-        /////////////////////
+    public SCell get(String cords) {
+        SCell ans = null;
+        CellEntry newCords = new CellEntry(cords);
+        int x = newCords.getX();
+        int y = newCords.getY();
+        if (x<=width()&&y<=height())
+        {
+            if(x!=-1 && y!=-1) {
+                ans = get(x,y);
+            }
+        }
+        else
+        {
+            throw new IndexOutOfBoundsException();
+        }
         return ans;
     }
 
@@ -60,12 +80,21 @@ public class Ex2Sheet implements Sheet {
 
         /////////////////////
     }
+
     @Override
     public void eval() {
         int[][] dd = depth();
-        // Add your code here
-
-        // ///////////////////
+        for(int i=0;i<width();i=i+1) {
+            for(int j=0;j<height();j=j+1) {
+                SCell c = get(i,j);
+                if(c!=null&&dd[i][j]!=-1) {
+                    String res = eval(i,j);
+                    c.setValue(res);
+                } else if (dd[i][j] == -1){
+                    c.setType(Ex2Utils.ERR_CYCLE_FORM);
+                }
+            }
+        }
     }
 
     @Override
@@ -80,12 +109,72 @@ public class Ex2Sheet implements Sheet {
     @Override
     public int[][] depth() {
         int[][] ans = new int[width()][height()];
-        // Add your code here
-
-        // ///////////////////
+        int change=-1;
+        {
+            for(int i=0;i<width();i++) {
+                for(int j=0;j<height();j++) {
+                    ans [i][j] = -1;
+                }
+            }
+            for(int i=0;i<width();i++) {
+                for(int j=0;j<height();j++) {
+                    try {
+                        ans[i][j] = computeDepth(get(i,j));
+                        get(i,j).setOrder(ans[i][j]);
+                    }catch(Exception e) {
+                        ans[i][j] = -1;
+                    }
+                }
+            }
+        }
         return ans;
     }
 
+    public int computeDepth(SCell c)
+    {
+        int depth = 0;
+        if(c!=null) {
+            if(SCell.getCellName(c.toString()).length==0) {
+                depth = 0;
+            }
+            else {
+                String[] temp = SCell.getCellName(c.toString());
+                int lastMax = 0;
+                for(int i=0;i<temp.length;i++) {
+                    if (!cycled(get(temp[i]))) {
+                        int tempDepth = computeDepth(get(temp[i]));
+                        lastMax = Math.max(lastMax, tempDepth);
+
+                    }
+                    else
+                    {
+                       throw new RuntimeException("cycled");
+                    }
+                }
+                depth = 1+lastMax;
+            }
+        }
+        return depth;
+    }
+
+    private boolean cycled(SCell c)
+    {
+        ArrayList<SCell> cycle = new ArrayList<SCell>();
+        String[] temp = SCell.getCellName(c.toString());
+        boolean ans=false;
+        if (cycle.contains(c)) {
+            ans=true;
+        }
+        for(int i=0;i<temp.length;i++) {
+            if (cycled(get(temp[i])))
+            {
+                ans=true;
+                break;
+            }
+        }
+        cycle.add(c);
+       return ans;
+    }
     @Override
     public void load(String fileName) throws IOException {
         // Add your code here
@@ -118,7 +207,7 @@ public class Ex2Sheet implements Sheet {
         return ans;
     }
 
-        public double computeFormula(String formula) {
+    public double computeFormula(String formula) {
         double compans = 0;
         if(formula.charAt(0)=='=') {formula = formula.substring(1);}
         if (SCell.isValidForm(formula)) {
@@ -168,6 +257,7 @@ public class Ex2Sheet implements Sheet {
         }
         return compans;
     }
+
     private int[] lastOp(String formula) {
         int[] ans = new int[2];
         ans[0] = SCell.lastOp(formula);

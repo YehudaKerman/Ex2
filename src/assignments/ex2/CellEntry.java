@@ -3,7 +3,20 @@ package assignments.ex2;
 
 public class CellEntry  implements Index2D {
     private  String cname;
+    private int row;
+    private int col;
 
+    public CellEntry(String cords) {
+        if (cords == null || cords.length() < 2) {
+            this.row = -1;
+            this.col = -1;
+        }
+        else {
+            cname = cords;
+            row = getX();
+            col = getY();
+        }
+    }
     @Override
     public boolean isValid() {
         if(getX()>0&&getX()<26&&getY()>0&&getY()<99){
@@ -34,9 +47,9 @@ public class CellEntry  implements Index2D {
 
     @Override
     public int getY() {
-        String newS = cname.substring(1, cname.length());
+        String newS = cname.substring(1);
         try {
-            if (Integer.parseInt(newS)<99&&Integer.parseInt(newS)>0){
+            if (Integer.parseInt(newS)<99&&Integer.parseInt(newS)>=0){
                 return Integer.parseInt(newS);
             }
             else {

@@ -91,4 +91,52 @@ public class SCellTest {
             assertEquals(expected[i], actual[i]);
         }
     }
+
+    @Test
+    void getOrder() {
+    }
+
+    @Test
+    void testToString() {
+    }
+
+    @Test
+    void setData() {
+        String[] data = {"1","=3+6","adfs","=A2","=+"};
+        SCell[] test = new SCell[5];
+        int[] res = {2,3,1,3,-2};
+        for (int i = 0; i < test.length; i++) {
+            test[i] = new SCell(data[i]);
+            int actual = test[i].getType();
+            assertEquals(res[i], actual);
+        }
+    }
+
+    @Test
+    void getData() {
+    }
+
+    @Test
+    void getType() {
+    }
+
+    @Test
+    void setType() {
+    }
+
+    @Test
+    void setOrder() {
+    }
+
+    @Test
+    void getName() {
+    }
+
+    @Test
+    void setName() {
+    }
+
+    @Test
+    void parentheses() {
+    }
 }
