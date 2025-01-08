@@ -1,6 +1,7 @@
 package assignments.ex2;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 // Add your documentation below:
 
 public class Ex2Sheet implements Sheet {
@@ -21,28 +22,38 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public String value(int x, int y) {
-        String ans = Ex2Utils.EMPTY_CELL;
-        SCell c = get(x,y);
-        if(c!=null) {ans = c.toString();}
-        switch(c.getType()) {
-            case 1, 2:
-                ans = c.toString();
-                break;
-            case 3:
-                ans = eval(x,y);
-                break;
-            case -2:
-                ans = Ex2Utils.ERR_FORM;
-                break;
-            case -1:
-                ans = Ex2Utils.ERR_CYCLE;
+        if(!isIn(x, y)) {
+            throw new IndexOutOfBoundsException();
         }
+        String ans = Ex2Utils.EMPTY_CELL;
+            SCell c = get(x, y);
+            if (c != null) {
+                ans = c.toString();
+            }
+            switch (c.getType()) {
+                case 1, 2:
+                    ans = c.toString();
+                    break;
+                case 3:
+                    ans = eval(x, y);
+                    break;
+                case -2:
+                    ans = Ex2Utils.ERR_FORM;
+                    break;
+                case -1:
+                    ans = Ex2Utils.ERR_CYCLE;
+            }
         return ans;
     }
 
     @Override
     public SCell get(int x, int y) {
-        return table[x][y];
+        if(!isIn(x, y)) {
+            throw new IndexOutOfBoundsException();
+        }
+        else{
+            return table[x][y];
+        }
     }
 
     @Override
@@ -74,25 +85,49 @@ public class Ex2Sheet implements Sheet {
     }
     @Override
     public void set(int x, int y, String s) {
-        SCell c = new SCell(s);
-        table[x][y] = c;
-        // Add your code here
-
-        /////////////////////
+        if (!isIn(x, y)) {
+            throw new IndexOutOfBoundsException();
+        }
+        else {
+            SCell c = new SCell(s, x, y);
+            table[x][y] = c;
+            eval();
+        }
     }
 
     @Override
     public void eval() {
         int[][] dd = depth();
-        for(int i=0;i<width();i=i+1) {
-            for(int j=0;j<height();j=j+1) {
-                SCell c = get(i,j);
-                if(c!=null&&dd[i][j]!=-1) {
-                    String res = eval(i,j);
+        for (int i = 0; i < width(); i = i + 1) {
+            for (int j = 0; j < height(); j = j + 1) {
+                SCell c = get(i, j);
+                if (c != null && dd[i][j] != -1) {
+                    String res = eval(i, j);
                     c.setValue(res);
-                } else if (dd[i][j] == -1){
-                    c.setType(Ex2Utils.ERR_CYCLE_FORM);
-                } else if (c==null||eval(i,j)==Ex2Utils.ERR_CYCLE) {
+                    if (SCell.isNumber(c.getData()))
+                    {
+                        c.setType(2);
+                    } else if (SCell.isText(c.getData())) {
+                        c.setType(1);
+                    } else if (SCell.isForm(c.getData())) {
+                        c.setType(3);
+                    }
+                } else if (dd[i][j] == -1) {
+                    int newDepth = computeDepth(get(i, j), new HashSet<SCell>(), new HashSet<SCell>());
+                    if (newDepth == -1) {
+                        c.setType(Ex2Utils.ERR_CYCLE_FORM);
+                        c.setValue(Ex2Utils.ERR_CYCLE);
+                    } else {
+                        c.setValue(eval(i, j));
+                        if (SCell.isForm(c.getData())) {
+                            c.setType(Ex2Utils.FORM);
+                        } else if (SCell.isNumber(c.getData())) {
+                            c.setType(Ex2Utils.TEXT);
+                        } else if (SCell.isNumber(c.getData())) {
+                            c.setType(Ex2Utils.NUMBER);
+                        }
+                    }
+                } else if (c == null || eval(i, j) == Ex2Utils.ERR_CYCLE) {
                     c.setType(Ex2Utils.ERR_FORM_FORMAT);
                 }
             }
@@ -102,8 +137,12 @@ public class Ex2Sheet implements Sheet {
     @Override
     public boolean isIn(int xx, int yy) {
         boolean ans = xx>=0 && yy>=0;
-        // Add your code here
-
+        if(xx>=width()||yy>=height()||xx<0||yy<0) {
+            ans = false;
+        }
+        else {
+            ans = true;
+        }
         /////////////////////
         return ans;
     }
@@ -119,7 +158,7 @@ public class Ex2Sheet implements Sheet {
             }
             for(int i=0;i<width();i++) {
                 for(int j=0;j<height();j++) {
-                        ans[i][j] = computeDepth(get(i,j),new ArrayList<SCell>());
+                        ans[i][j] = computeDepth(get(i, j),new HashSet<SCell>(),new HashSet<SCell>());
                         get(i,j).setOrder(ans[i][j]);
                     }
                 }
@@ -127,36 +166,40 @@ public class Ex2Sheet implements Sheet {
                 return ans;
     }
 
-    public int computeDepth(SCell c,ArrayList<SCell> checked)
-    {
-        int depth = 0;
-        if(c!=null) {
-            if(SCell.getCellName(c.toString()).length==0) {
-                depth = 0;
-            }
-            else {
-                String[] temp = SCell.getCellName(c.toString());
-                int lastMax = 0;
-                for(int i=0;i<temp.length;i++) {
-                    if (!checked.contains(c)) {
-                        checked.add(c);
-                        int tempDepth = computeDepth(get(temp[i]),checked);
-                        if(tempDepth==-1) {
-                            c.setType(Ex2Utils.ERR_CYCLE_FORM);
-                            return Ex2Utils.ERR_CYCLE_FORM;}
-                        lastMax = Math.max(lastMax, tempDepth);
-                    }
-                    else
-                    {
-                       return Ex2Utils.ERR_CYCLE_FORM;
-                    }
-                }
-                depth = 1+lastMax;
-            }
+    public int computeDepth(SCell c, Set<SCell> checked, Set<SCell> inProcess) {
+        if (c == null) {
+            return 0;
         }
-        checked.remove(c);
-        return depth;
+
+        if (inProcess.contains(c)) {
+            c.setType(Ex2Utils.ERR_CYCLE_FORM);
+            return Ex2Utils.ERR_CYCLE_FORM;
+        }
+
+        if (checked.contains(c)) {
+            return 0;
+        }
+
+        inProcess.add(c);
+        String[] references = SCell.getCellName(c.getData());
+        int lastMax = 0;
+
+        for (int i = 0; i < references.length; i++) {
+            SCell referencedCell = get(references[i]);
+            int tempDepth = computeDepth(referencedCell, checked, inProcess);
+            if (tempDepth == Ex2Utils.ERR_CYCLE_FORM) {
+                c.setType(Ex2Utils.ERR_CYCLE_FORM);
+                inProcess.remove(c);
+                return Ex2Utils.ERR_CYCLE_FORM;
+            }
+            lastMax = Math.max(lastMax, tempDepth);
+        }
+
+        inProcess.remove(c);
+        checked.add(c);
+        return 1 + lastMax;
     }
+
     @Override
     public void load(String fileName) throws IOException {
         // Add your code here
@@ -173,27 +216,55 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public String eval(int x, int y) {
+        if(!isIn(x, y)) {throw new IndexOutOfBoundsException(); }
         String ans = null;
         if (get(x,y)!=null) {
-            ans = get(x,y).toString();
+            ans = get(x,y).getData();
         }
-        if (SCell.isText(ans)||SCell.isNumber(ans)) {
+        if (SCell.isNumber(ans)) {
             return ans;
-        }
-        else
-        {
-            double comp = computeFormula(ans);
-            if(comp==-1) {
-                ans = Ex2Utils.ERR_CYCLE;
-                get(x, y).setType(Ex2Utils.ERR_CYCLE_FORM);
-            } else if (comp==-2) {
-                get(x,y).setType(Ex2Utils.ERR_FORM_FORMAT);
-                ans=Ex2Utils.ERR_FORM;
+        } else if (SCell.isText(ans)) {
+            if(get(x,y).getType()==Ex2Utils.ERR_CYCLE_FORM) {
+                int depth =computeDepth(get(x,y),new HashSet<SCell>(), new HashSet<SCell>());
+                if (depth==Ex2Utils.ERR_CYCLE_FORM) {
+                    get(x, y).setType(Ex2Utils.ERR_CYCLE_FORM);
+                    get(x, y).setValue(Ex2Utils.ERR_CYCLE);
+                    return Ex2Utils.ERR_CYCLE;
+                }
+                    else if (depth == Ex2Utils.ERR_FORM_FORMAT) {
+                    get(x, y).setType(Ex2Utils.ERR_FORM_FORMAT);
+                    get(x, y).setValue(Ex2Utils.ERR_FORM);
+                    return Ex2Utils.ERR_FORM;
+                }
+                    else if (depth >=0)
+                {
+                    double comp = computeFormula(get(x,y).getData());
+                    if (comp==Ex2Utils.ERR_CYCLE_FORM) {
+                        get(x,y).setValue(Ex2Utils.ERR_CYCLE);
+                        get(x,y).setType(Ex2Utils.ERR_CYCLE_FORM);
+                        ans = Ex2Utils.ERR_CYCLE;
+                        return ans;
+                    }
+                }
             }
-            else {
-                ans = Double.toString(comp);
+            else
+            {
+                ans = get(x,y).toString();
             }
-        }
+        } else if (SCell.isForm(ans))
+            {
+                double comp = computeFormula(ans);
+                if(comp==-1) {
+                    ans = Ex2Utils.ERR_CYCLE;
+                    get(x, y).setType(Ex2Utils.ERR_CYCLE_FORM);
+                } else if (comp==-2) {
+                    get(x,y).setType(Ex2Utils.ERR_FORM_FORMAT);
+                    ans=Ex2Utils.ERR_FORM;
+                }
+                else {
+                    ans = Double.toString(comp);
+                }
+            }
     /////////////////////
         return ans;
     }
@@ -211,8 +282,14 @@ public class Ex2Sheet implements Sheet {
                 if (SCell.isNumber(formula)) {
                     compans = Double.parseDouble(formula);
                 } else if (SCell.isCell(formula)) {
-                   compans = (computeFormula(get(formula).toString()));
-                } else
+                    int depth =computeDepth(get(formula), new HashSet<SCell>(), new HashSet<SCell>());
+                    if ( depth == -1) {
+                        return Ex2Utils.ERR_CYCLE_FORM;
+                    } else if (depth != -1) {
+                        compans = (computeFormula(get(formula).toString()));
+                    }
+                }
+                else
                 {
                     if (formula.charAt(0) == '(' && formula.charAt(formula.length() - 1) == ')')
                     {

@@ -7,19 +7,13 @@ public class SCell implements Cell {
     private String line;
     private int type;
     private int order;
-    private String name;
     private static String value;
 
-    public SCell(String data, int x, int y) {
-        for (int i=0;i<26;i++)
-        {
-                name = Ex2Utils.ABC[x].concat(Integer.toString(y));
-        }
+    public SCell(String data) {
         setData(data);
     }
-
-    public SCell(String data) {
-        this(data, 0,0);
+    public SCell(SCell cell) {
+        this(cell.line);
     }
 
     //public SCell(String data, Ex2Sheet table) {}
@@ -29,17 +23,8 @@ public class SCell implements Cell {
 
     @Override
     public int getOrder() {
-        if (getType() == 1||getType() == 2) {
-            order=0;
-        }
-        else if (getType() == 3) {
-            order = 1;
-        }
         return order;
-        // ///////////////////
     }
-
-    //@Override
     @Override
     public String toString() {
         if (getType() == 1||getType() == 3) {
@@ -98,15 +83,6 @@ public class SCell implements Cell {
     public void setOrder(int t) {
         order = t;
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public static boolean isNumber(String s) {
         try {
             Double.parseDouble(s);
