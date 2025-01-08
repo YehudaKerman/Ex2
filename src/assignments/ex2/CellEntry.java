@@ -51,8 +51,4 @@ public class CellEntry  implements Index2D {
         catch (NumberFormatException e){
             return Ex2Utils.ERR;}
         }
-    public  String getName(SCell cell) {
-        coordinates = cell.getName();
-        return coordinates;
-        }
 }

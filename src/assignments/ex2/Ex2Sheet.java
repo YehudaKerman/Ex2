@@ -1,5 +1,5 @@
 package assignments.ex2;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 // Add your documentation below:
@@ -10,7 +10,7 @@ public class Ex2Sheet implements Sheet {
         table = new SCell[x][y];
         for(int i=0;i<x;i=i+1) {
             for(int j=0;j<y;j=j+1) {
-                table[i][j] = new SCell(" ",x,y);
+                table[i][j] = new SCell(" ");
             }
         }
         eval();
@@ -89,7 +89,7 @@ public class Ex2Sheet implements Sheet {
             throw new IndexOutOfBoundsException();
         }
         else {
-            SCell c = new SCell(s, x, y);
+            SCell c = new SCell(s);
             table[x][y] = c;
             eval();
         }
@@ -202,16 +202,36 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public void load(String fileName) throws IOException {
-        // Add your code here
-
-        /////////////////////
+        try(BufferedReader loadedFile = new BufferedReader(new FileReader(fileName))) {
+            String line = loadedFile.readLine();
+            while ((line = loadedFile.readLine())!=null) {
+                String[] splitLine = line.split(",",3);
+                int x = Integer.parseInt(splitLine[0]);
+                int y = Integer.parseInt(splitLine[1]);
+                table[x][y] = new SCell(splitLine[2]);
+            }
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void save(String fileName) throws IOException {
-        // Add your code here
+        try(BufferedWriter saveFile = new BufferedWriter(new FileWriter(fileName))){
+            saveFile.write("I2CS ArielU: SpreadSheet (Ex2) assignment - my solution, the file name is: "+fileName+"\n");
+            for(int i=0;i<width();i++) {
+                for(int j=0;j<height();j++) {
+                    if(!(get(i,j).getData().equals(" "))) {
+                        saveFile.write(String.format("%d,%d,%s\n",i,j,get(i,j).getData()));
+                    }
 
-        /////////////////////
+                }
+            }
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
