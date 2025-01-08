@@ -2,6 +2,8 @@ package assignments.ex2;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 class Ex2SheetTest {
 
@@ -77,7 +79,7 @@ class Ex2SheetTest {
         ex2Sheet.set(0,1,"=A0");
         ex2Sheet.set(1,0,"=A1+A0");
         ex2Sheet.set(1,1,"=B0");
-        int x = ex2Sheet.computeDepth(ex2Sheet.get(1,0));
+        int x = ex2Sheet.computeDepth(ex2Sheet.get(1,0),new ArrayList<SCell>());
         int exp = 2;
         assertEquals(exp,x);
     }
@@ -99,4 +101,19 @@ class Ex2SheetTest {
     }
 
 
+    @Test
+    void testDepth() {
+        Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
+        ex2Sheet.set(0,0,"=((1+2)*6.2)");
+        ex2Sheet.set(0,1,"=b0");
+        ex2Sheet.set(1,0,"=A1+A0");
+        ex2Sheet.set(1,1,"=A0");
+        int[][] exp ={{0,-1},{-1,1}};
+        int[][] res =ex2Sheet.depth();
+        for (int i = 0; i < res.length; i++) {
+            for (int j = 0; j < res[i].length; j++) {
+                assertEquals(exp[i][j],res[i][j]);
+            }
+        }
+    }
 }

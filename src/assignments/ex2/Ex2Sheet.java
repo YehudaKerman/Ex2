@@ -92,6 +92,8 @@ public class Ex2Sheet implements Sheet {
                     c.setValue(res);
                 } else if (dd[i][j] == -1){
                     c.setType(Ex2Utils.ERR_CYCLE_FORM);
+                } else if (c==null||eval(i,j)==Ex2Utils.ERR_CYCLE) {
+                    c.setType(Ex2Utils.ERR_FORM_FORMAT);
                 }
             }
         }
@@ -109,7 +111,6 @@ public class Ex2Sheet implements Sheet {
     @Override
     public int[][] depth() {
         int[][] ans = new int[width()][height()];
-        int change=-1;
         {
             for(int i=0;i<width();i++) {
                 for(int j=0;j<height();j++) {
@@ -118,19 +119,15 @@ public class Ex2Sheet implements Sheet {
             }
             for(int i=0;i<width();i++) {
                 for(int j=0;j<height();j++) {
-                    try {
-                        ans[i][j] = computeDepth(get(i,j));
+                        ans[i][j] = computeDepth(get(i,j),new ArrayList<SCell>());
                         get(i,j).setOrder(ans[i][j]);
-                    }catch(Exception e) {
-                        ans[i][j] = -1;
                     }
                 }
             }
-        }
-        return ans;
+                return ans;
     }
 
-    public int computeDepth(SCell c)
+    public int computeDepth(SCell c,ArrayList<SCell> checked)
     {
         int depth = 0;
         if(c!=null) {
@@ -141,39 +138,24 @@ public class Ex2Sheet implements Sheet {
                 String[] temp = SCell.getCellName(c.toString());
                 int lastMax = 0;
                 for(int i=0;i<temp.length;i++) {
-                    if (!cycled(get(temp[i]))) {
-                        int tempDepth = computeDepth(get(temp[i]));
+                    if (!checked.contains(c)) {
+                        checked.add(c);
+                        int tempDepth = computeDepth(get(temp[i]),checked);
+                        if(tempDepth==-1) {
+                            c.setType(Ex2Utils.ERR_CYCLE_FORM);
+                            return Ex2Utils.ERR_CYCLE_FORM;}
                         lastMax = Math.max(lastMax, tempDepth);
-
                     }
                     else
                     {
-                       throw new RuntimeException("cycled");
+                       return Ex2Utils.ERR_CYCLE_FORM;
                     }
                 }
                 depth = 1+lastMax;
             }
         }
+        checked.remove(c);
         return depth;
-    }
-
-    private boolean cycled(SCell c)
-    {
-        ArrayList<SCell> cycle = new ArrayList<SCell>();
-        String[] temp = SCell.getCellName(c.toString());
-        boolean ans=false;
-        if (cycle.contains(c)) {
-            ans=true;
-        }
-        for(int i=0;i<temp.length;i++) {
-            if (cycled(get(temp[i])))
-            {
-                ans=true;
-                break;
-            }
-        }
-        cycle.add(c);
-       return ans;
     }
     @Override
     public void load(String fileName) throws IOException {
@@ -201,7 +183,16 @@ public class Ex2Sheet implements Sheet {
         else
         {
             double comp = computeFormula(ans);
-            ans = Double.toString(comp);
+            if(comp==-1) {
+                ans = Ex2Utils.ERR_CYCLE;
+                get(x, y).setType(Ex2Utils.ERR_CYCLE_FORM);
+            } else if (comp==-2) {
+                get(x,y).setType(Ex2Utils.ERR_FORM_FORMAT);
+                ans=Ex2Utils.ERR_FORM;
+            }
+            else {
+                ans = Double.toString(comp);
+            }
         }
     /////////////////////
         return ans;
@@ -209,10 +200,13 @@ public class Ex2Sheet implements Sheet {
 
     public double computeFormula(String formula) {
         double compans = 0;
+        if(formula.equals(" ")) {
+            compans = Ex2Utils.ERR_FORM_FORMAT;
+        }
         if(formula.charAt(0)=='=') {formula = formula.substring(1);}
         if (SCell.isValidForm(formula)) {
-                if (formula.isEmpty() || formula == null) {
-                    throw new IllegalArgumentException("formula is empty");
+                if (formula.isEmpty() || formula == null||formula.equals(" ")) {
+                    return Ex2Utils.ERR_FORM_FORMAT;
             } else {
                 if (SCell.isNumber(formula)) {
                     compans = Double.parseDouble(formula);
