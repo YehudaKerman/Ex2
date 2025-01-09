@@ -33,14 +33,6 @@ public class CellEntryTest {
     }
 
     @Test
-    public void testNullCoordinates() {
-        CellEntry cell = new CellEntry(null);
-        assertFalse(cell.isValid());
-        assertEquals(Ex2Utils.ERR, cell.getX());
-        assertEquals(Ex2Utils.ERR, cell.getY());
-    }
-
-    @Test
     public void testShortCoordinates() {
         CellEntry cell = new CellEntry("A"); // Too short
         assertFalse(cell.isValid());

@@ -219,7 +219,9 @@ public class SCell implements Cell {
      */
     public static boolean isValidForm (String s){
         boolean ans = false;
-        if (s.isEmpty() || s == null) {
+        if (s.isEmpty() || s == null||s.charAt(0)=='+'||s.charAt(0)=='-'||s.charAt(0)=='*'||s.charAt(0)=='/'||
+                s.charAt(s.length()-1)=='+'||s.charAt(s.length()-1)=='-'||s.charAt(s.length()-1)=='*'
+                ||s.charAt(s.length()-1)=='/'||s.matches("=")) {
             ans = false;
         } else {
             if (isNumber(s)) {

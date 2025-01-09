@@ -21,6 +21,7 @@ public class CellEntry implements Index2D {
         if (cords == null || cords.length() < 2 || cords.length() > 3) {
             this.row = Ex2Utils.ERR;
             this.col = Ex2Utils.ERR;
+            coordinates = cords;
         } else {
             coordinates = cords;
             col = getX();
@@ -36,7 +37,7 @@ public class CellEntry implements Index2D {
     public boolean isValid() {
         if (row == Ex2Utils.ERR || col == Ex2Utils.ERR) {
             return false;
-        } else if (coordinates.substring(1).matches("[a-zA-Z]+")) {
+        } else if (coordinates.substring(1).matches(".*[a-zA-Z].*")) {
             return false;
         } else if (getX() >= 0 && getX() <= 25 && getY() >= 0 && getY() <= 99) {
             return true;
@@ -51,12 +52,13 @@ public class CellEntry implements Index2D {
      */
     @Override
     public int getX() {
-        String pattern = "[a-zA-Z]";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(coordinates.substring(0, 1));
-        if (!m.matches()) {
+        if (!coordinates.substring(0,1).matches(".*[a-zA-Z].*")) {
             return Ex2Utils.ERR;
-        } else {
+        } else if (coordinates.substring(1).matches(".*[a-zA-Z].*")||coordinates.substring(1).isEmpty()) {
+            return Ex2Utils.ERR;
+        }
+        else
+        {
             String newS = coordinates.substring(0, 1).toUpperCase();
             for (int i = 0; i < 26; i++) {
                 if (newS.equals(Ex2Utils.ABC[i])) {
@@ -74,10 +76,7 @@ public class CellEntry implements Index2D {
     @Override
     public int getY() {
         String newS = coordinates.substring(1);
-        String pattern = "\\d+";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(newS);
-        if (!m.matches()) {
+        if (newS.matches(".*[a-zA-Z].*")) {
             return Ex2Utils.ERR;
         } else {
             try {

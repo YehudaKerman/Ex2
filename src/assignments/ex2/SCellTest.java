@@ -1,8 +1,7 @@
 package assignments.ex2;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SCellTest {
     @Test
@@ -93,11 +92,18 @@ public class SCellTest {
     }
 
     @Test
-    void getOrder() {
-    }
-
-    @Test
     void testToString() {
+        SCell textCell = new SCell("test");
+        assertEquals("test", textCell.toString());
+
+        SCell numberCell = new SCell("123");
+        assertEquals("123.0", numberCell.toString());
+
+        SCell formulaCell = new SCell("=A1+B2");
+        assertEquals("=A1+B2", formulaCell.toString());
+
+        SCell errorCell = new SCell("=A1+");
+        assertEquals("ERR_FORM!", errorCell.toString());
     }
 
     @Test
@@ -114,29 +120,134 @@ public class SCellTest {
 
     @Test
     void getData() {
+        SCell cell = new SCell("test");
+        assertEquals("test", cell.getData());
+
+        SCell numberCell = new SCell("123");
+        assertEquals("123", numberCell.getData());
+
+        SCell formulaCell = new SCell("=A1+B2");
+        assertEquals("=A1+B2", formulaCell.getData());
     }
 
     @Test
     void getType() {
+        SCell textCell = new SCell("test");
+        assertEquals(1, textCell.getType());
+
+        SCell numberCell = new SCell("1");
+        assertEquals(2, numberCell.getType());
+
+        SCell formulaCell = new SCell("=A1+B2");
+        assertEquals(3, formulaCell.getType());
     }
 
     @Test
     void setType() {
+        SCell cell = new SCell("1");
+        cell.setType(3);
+        assertEquals(3, cell.getType());
+
+        cell.setType(1);
+        assertEquals(1, cell.getType());
     }
 
     @Test
     void setOrder() {
-    }
+        SCell cell = new SCell("1");
+        cell.setOrder(1);
+        assertEquals(1, cell.getOrder());
 
-    @Test
-    void getName() {
-    }
-
-    @Test
-    void setName() {
+        cell.setOrder(2);
+        assertEquals(2, cell.getOrder());
     }
 
     @Test
     void parentheses() {
+        assertEquals(6, SCell.parentheses("(A1+B2)"));
+        assertEquals(-1, SCell.parentheses("(A1+B2"));
+    }
+
+    @Test
+    public void testSetValue() {
+        SCell cell = new SCell("=3+2");
+        Ex2Sheet sheet = new Ex2Sheet(1,1);
+        sheet.set(0,0,cell.getData());
+        // Assuming there's a way to get the static value, otherwise this test needs to be adjusted
+        assertEquals("5.0", sheet.value(0,0));
+    }
+
+    @Test
+    public void testIsNumber() {
+        assertTrue(SCell.isNumber("123"));
+        assertFalse(SCell.isNumber("abc"));
+
+        assertTrue(SCell.isNumber("456.78"));
+        assertFalse(SCell.isNumber("12a34"));
+    }
+
+    @Test
+    public void testIsText() {
+        assertTrue(SCell.isText("hello"));
+        assertFalse(SCell.isText("=A1"));
+        assertFalse(SCell.isText("123"));
+
+        assertTrue(SCell.isText("world"));
+        assertFalse(SCell.isText("=B2"));
+    }
+
+    @Test
+    public void testGetCellName() {
+        String[] cellNames = SCell.getCellName("=A1+B2");
+        assertArrayEquals(new String[]{"A1", "B2"}, cellNames);
+
+        cellNames = SCell.getCellName("=C3*D4");
+        assertArrayEquals(new String[]{"C3", "D4"}, cellNames);
+    }
+
+    @Test
+    public void testIsCell() {
+        assertTrue(SCell.isCell("A1"));
+        assertFalse(SCell.isCell("1A"));
+        assertTrue(SCell.isCell("=A1"));
+
+        assertTrue(SCell.isCell("B2"));
+        assertFalse(SCell.isCell("2B"));
+    }
+
+    @Test
+    public void testIsForm() {
+        assertTrue(SCell.isForm("=A1+B2"));
+        assertFalse(SCell.isForm("A1+B2"));
+
+        assertTrue(SCell.isForm("=C3*D4"));
+        assertFalse(SCell.isForm("C3*D4"));
+    }
+
+    @Test
+    public void testIsValidForm() {
+        assertTrue(SCell.isValidForm("A1+B2"));
+        assertFalse(SCell.isValidForm("A1+"));
+
+        assertTrue(SCell.isValidForm("C3*D4"));
+        assertFalse(SCell.isValidForm("C3*"));
+    }
+
+    @Test
+    public void testParentheses() {
+        assertEquals(6, SCell.parentheses("(A1+B2)"));
+        assertEquals(-1, SCell.parentheses("(A1+B2"));
+
+        assertEquals(6, SCell.parentheses("(C3*D4)"));
+        assertEquals(-1, SCell.parentheses("(C3*D4"));
+    }
+
+    @Test
+    public void testLastOp() {
+        assertEquals(2, SCell.lastOp("A1+B2"));
+        assertEquals(2, SCell.lastOp("A1*B2"));
+
+        assertEquals(2, SCell.lastOp("C3-D4"));
+        assertEquals(2, SCell.lastOp("C3/D4"));
     }
 }
