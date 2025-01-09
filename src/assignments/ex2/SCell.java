@@ -3,20 +3,36 @@ package assignments.ex2;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents a cell in a spreadsheet.
+ * It can contain a number, text, or a formula.
+ */
 public class SCell implements Cell {
     private String line;
     private int type;
     private int order;
     private static String value;
 
+    /**
+     * Constructs an SCell object with the given data.
+     * @param data the data to initialize the cell with.
+     */
     public SCell(String data) {
         setData(data);
     }
+
+    /**
+     * Constructs an SCell object by copying another SCell object.
+     * @param cell the SCell object to copy.
+     */
     public SCell(SCell cell) {
         this(cell.line);
     }
 
-    //public SCell(String data, Ex2Sheet table) {}
+    /**
+     * Sets the value of the cell.
+     * @param newValue the new value to set.
+     */
     public static void setValue(String newValue) {
         value = newValue;
     }
@@ -25,6 +41,7 @@ public class SCell implements Cell {
     public int getOrder() {
         return order;
     }
+
     @Override
     public String toString() {
         if (getType() == 1||getType() == 3) {
@@ -83,6 +100,12 @@ public class SCell implements Cell {
     public void setOrder(int t) {
         order = t;
     }
+
+    /**
+     * Checks if the given string is a valid number.
+     * @param s the string to check.
+     * @return true if the string is a valid number, false otherwise.
+     */
     public static boolean isNumber(String s) {
         try {
             Double.parseDouble(s);
@@ -92,6 +115,11 @@ public class SCell implements Cell {
         }
     }
 
+    /**
+     * Checks if the given string is valid text.
+     * @param s the string to check.
+     * @return true if the string is valid text, false otherwise.
+     */
     public static boolean isText(String s) {
         if (s.charAt(0) == '=' || isNumber(s)) {
             return false;
@@ -99,6 +127,12 @@ public class SCell implements Cell {
             return true;
         }
     }
+
+    /**
+     * Extracts cell names from the given formula string.
+     * @param s the formula string.
+     * @return an array of cell names.
+     */
     public static String[] getCellName(String s) {
         ArrayList <String> ans = new ArrayList<>();
         if (isForm(s)) {
@@ -124,6 +158,12 @@ public class SCell implements Cell {
         ans.toArray(temp);
         return temp;
     }
+
+    /**
+     * Checks if the given string is a valid cell reference.
+     * @param s the string to check.
+     * @return true if the string is a valid cell reference, false otherwise.
+     */
     public static boolean isCell(String s) {
         boolean ans = false;
         if (s.charAt(0) == '=') {
@@ -158,6 +198,12 @@ public class SCell implements Cell {
             return ans;
         }
     }
+
+    /**
+     * Checks if the given string is a valid formula.
+     * @param s the string to check.
+     * @return true if the string is a valid formula, false otherwise.
+     */
     public static boolean isForm (String s){
             if (s.charAt(0) != '=' || s.isEmpty() || s.equals(null) || (s.charAt(0) == '=' && s.length() == 1)) {
                 return false;
@@ -165,6 +211,12 @@ public class SCell implements Cell {
                 return isValidForm(s.substring(1, s.length()));
             }
         }
+
+    /**
+     * Checks if the given string is a valid formula (without the leading '=').
+     * @param s the string to check.
+     * @return true if the string is a valid formula, false otherwise.
+     */
     public static boolean isValidForm (String s){
         boolean ans = false;
         if (s.isEmpty() || s == null) {
@@ -211,6 +263,12 @@ public class SCell implements Cell {
             }
         return ans;
     }
+
+    /**
+     * Finds the position of the matching closing parenthesis for the first opening parenthesis in the string.
+     * @param s the string to check.
+     * @return the index of the matching closing parenthesis, or -1 if not found.
+     */
     public static int parentheses (String s) {
         int openCount = 1;
         int closeIndex = -1;
@@ -232,6 +290,12 @@ public class SCell implements Cell {
         }
         return closeIndex;
     }
+
+    /**
+     * Finds the position of the last operator in the string.
+     * @param s the string to check.
+     * @return the index of the last operator.
+     */
     public static int lastOp (String s){
         int ans = 0;
         double min = 999999999;

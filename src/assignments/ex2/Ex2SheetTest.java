@@ -1,7 +1,9 @@
 package assignments.ex2;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -10,48 +12,74 @@ class Ex2SheetTest {
 
     @Test
     void value() {
+        Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
+        ex2Sheet.set(0,0,"=1+2*A1+B0");
+        ex2Sheet.set(0,1,"=1");
+        ex2Sheet.set(1,0,"=1");
+        ex2Sheet.set(1,1,"=A0");
+        assertEquals("4.0",ex2Sheet.value(0,0));
+        assertEquals("1.0",ex2Sheet.value(0,1));
+        assertEquals("1.0",ex2Sheet.value(1,0));
+        assertEquals("4.0",ex2Sheet.value(1,1));
     }
 
     @Test
-    void get() {
-    }
-
-    @Test
-    void testGet() {
+    void getTest() {
+        Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
+        ex2Sheet.set(0,0,"=1+2*A1+B0");
+        ex2Sheet.set(0,1,"=1");
+        ex2Sheet.set(1,0,"=1");
+        ex2Sheet.set(1,1,"=A0");
+        String s = ex2Sheet.get(1,1).getData();
+        String a = ex2Sheet.get("a0").getData();
+        String expS = "=A0";
+        String expA = "=1+2*A1+B0";
+        assertEquals(expS,s);
+        assertEquals(expA,a);
     }
 
     @Test
     void width() {
+        Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
+        int x = ex2Sheet.width();
+        assertEquals(2,x);
     }
 
     @Test
     void height() {
+        Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
+        int y = ex2Sheet.height();
+        assertEquals(2,y);
     }
 
     @Test
     void set() {
+        Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
+        ex2Sheet.set(0,0,"=1+2*A1+B0");
+        ex2Sheet.set(0,1,"=1");
+        ex2Sheet.set(1,0,"=1");
+        ex2Sheet.set(1,1,"=A0");
+        String s = ex2Sheet.get(1,1).getData();
+        String a = ex2Sheet.get("a0").getData();
+        String expS = "=A0";
+        String expA = "=1+2*A1+B0";
+        assertEquals(expS,s);
+        assertEquals(expA,a);
     }
-
-    @Test
-    void eval() {
-    }
-
     @Test
     void isIn() {
+        Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
+        try{
+            ex2Sheet.isIn(2,2);
+        }
+        catch(Exception e){
+            boolean b = true;
+            assertTrue(b);
+        }
+        assertTrue(ex2Sheet.isIn(0,0));
     }
 
-    @Test
-    void depth() {
-    }
-
-    @Test
-    void load() {
-    }
-
-    @Test
-    void save() {
-    }
-
+    @Timeout(1)
     @Test
     void testEval() {
         Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
