@@ -110,12 +110,12 @@ class Ex2SheetTest {
     void computeDepthTest()
     {
         Ex2Sheet ex2Sheet = new Ex2Sheet(2,2);
-        ex2Sheet.set(0,0,"=((1+2)*6.2)");
-        ex2Sheet.set(0,1,"=A0");
+        ex2Sheet.set(0,0,"1");
+        ex2Sheet.set(0,1,"=-A0");
         ex2Sheet.set(1,0,"=A1+A0");
         ex2Sheet.set(1,1,"=B0");
-        int x = ex2Sheet.computeDepth(ex2Sheet.get(1,0),new HashSet<SCell>(),new HashSet<SCell>());
-        int exp = 2;
+        int x = ex2Sheet.computeDepth(ex2Sheet.get(0,1),new HashSet<SCell>(),new HashSet<SCell>());
+        int exp = 1;
         assertEquals(exp,x);
     }
     @Test

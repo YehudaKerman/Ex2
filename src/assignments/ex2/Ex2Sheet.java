@@ -341,7 +341,8 @@ public class Ex2Sheet implements Sheet {
      * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
      */
     @Override
-    public String eval(int x, int y) {
+    public String eval(int x, int y)
+    {
         if(!isIn(x, y)) {throw new IndexOutOfBoundsException(); }
         String ans = null;
         if (get(x,y)!=null) {
@@ -364,12 +365,14 @@ public class Ex2Sheet implements Sheet {
                 }
                     else if (depth >=0)
                 {
-                    double comp = computeFormula(get(x,y).getData());
-                    if (comp==Ex2Utils.ERR_CYCLE_FORM) {
-                        get(x,y).setValue(Ex2Utils.ERR_CYCLE);
-                        get(x,y).setType(Ex2Utils.ERR_CYCLE_FORM);
-                        ans = Ex2Utils.ERR_CYCLE;
+                    try
+                    {
+                        double comp = computeFormula(get(x,y).getData());
+                        ans = Double.toString(comp);
                         return ans;
+                    }
+                    catch (Exception e) {
+                        ans = get(x,y).toString();
                     }
                 }
             }
@@ -379,16 +382,13 @@ public class Ex2Sheet implements Sheet {
             }
         } else if (SCell.isForm(ans))
             {
-                double comp = computeFormula(ans);
-                if(comp==-1) {
-                    ans = Ex2Utils.ERR_CYCLE;
-                    get(x, y).setType(Ex2Utils.ERR_CYCLE_FORM);
-                } else if (comp==-2) {
-                    get(x,y).setType(Ex2Utils.ERR_FORM_FORMAT);
-                    ans=Ex2Utils.ERR_FORM;
-                }
-                else {
+                try {
+                    double comp = computeFormula(ans);
                     ans = Double.toString(comp);
+                }
+                catch (Exception e)
+                {
+                    ans = Ex2Utils.ERR_FORM;
                 }
             }
     /////////////////////
@@ -405,25 +405,38 @@ public class Ex2Sheet implements Sheet {
      * @return the computed result as a double.
      */
 
-    public double computeFormula(String formula) {
+    public double computeFormula(String formula) throws Exception {
         double compans = 0;
         if(formula.equals(" ")) {
-            compans = Ex2Utils.ERR_FORM_FORMAT;
+            throw new Exception();
         }
         if(formula.charAt(0)=='=') {formula = formula.substring(1);}
         if (SCell.isValidForm(formula)) {
                 if (formula.isEmpty() || formula == null||formula.equals(" ")) {
-                    return Ex2Utils.ERR_FORM_FORMAT;
+                    throw new Exception();
             } else {
                 if (SCell.isNumber(formula)) {
                     compans = Double.parseDouble(formula);
                 } else if (SCell.isCell(formula)) {
-                    int depth =computeDepth(get(formula), new HashSet<SCell>(), new HashSet<SCell>());
-                    if ( depth == -1) {
-                        return Ex2Utils.ERR_CYCLE_FORM;
-                    } else if (depth != -1) {
-                        compans = (computeFormula(get(formula).toString()));
+                    if (formula.charAt(0) == '-') {
+                        int depth = computeDepth(get(formula.substring(1)), new HashSet<SCell>(), new HashSet<SCell>());
+                        if (depth == -1) {
+                            return Ex2Utils.ERR_CYCLE_FORM;
+                        } else if (depth != -1) {
+                            compans = -1 * (computeFormula(get(formula.substring(1)).toString()));
+                        }
                     }
+                        else
+                            {
+                                int depth = computeDepth(get(formula), new HashSet<SCell>(), new HashSet<SCell>());
+                                if (depth == -1) {
+                                    return Ex2Utils.ERR_CYCLE_FORM;
+                                }
+                                else if (depth != -1)
+                                    {
+                                        compans = (computeFormula(get(formula).toString()));
+                                    }
+                            }
                 }
                 else
                 {

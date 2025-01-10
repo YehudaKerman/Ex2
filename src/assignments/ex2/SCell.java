@@ -136,7 +136,7 @@ public class SCell implements Cell {
     public static String[] getCellName(String s) {
         ArrayList <String> ans = new ArrayList<>();
         if (isForm(s)) {
-            for (int i=0;i<s.length();i++) {
+            for (int i=1;i<s.length();i++) {
                 if (Character.isLetter(s.charAt(i))) {
                     int lastDigit = 0;
                     for (int j=i+1;j<s.length();j++) {
@@ -169,6 +169,7 @@ public class SCell implements Cell {
         if (s.charAt(0) == '=') {
             return isCell(s.substring(1));
         } else {
+            if(s.charAt(0)=='-'){s=s.substring(1);}
             int a =parentheses(s);
             if (s.charAt(0)=='('&&s.charAt(s.length()-1)==')') {
                 if (a == -1 || a == s.length() - 1) {
@@ -219,11 +220,13 @@ public class SCell implements Cell {
      */
     public static boolean isValidForm (String s){
         boolean ans = false;
-        if (s.isEmpty() || s == null||s.charAt(0)=='+'||s.charAt(0)=='-'||s.charAt(0)=='*'||s.charAt(0)=='/'||
+        if (s.isEmpty() || s == null||s.charAt(0)=='+'||s.charAt(0)=='*'||s.charAt(0)=='/'||
                 s.charAt(s.length()-1)=='+'||s.charAt(s.length()-1)=='-'||s.charAt(s.length()-1)=='*'
                 ||s.charAt(s.length()-1)=='/'||s.matches("=")) {
             ans = false;
-        } else {
+        }
+        else {
+            if(s.charAt(0)=='-'){s="0".concat(s);}
             if (isNumber(s)) {
                 ans = true;
             } else if (isCell(s)) {
