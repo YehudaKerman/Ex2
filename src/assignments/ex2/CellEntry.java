@@ -18,14 +18,21 @@ public class CellEntry implements Index2D {
      * @param cords the coordinates in the form of a string (e.g., "A1").
      */
     public CellEntry(String cords) {
+        coordinates = cords;
         if (cords == null || cords.length() < 2 || cords.length() > 3) {
             this.row = Ex2Utils.ERR;
             this.col = Ex2Utils.ERR;
-            coordinates = cords;
+            coordinates = Ex2Utils.ERR_FORM;
         } else {
-            coordinates = cords;
-            col = getX();
-            row = getY();
+            if (isValid()) {
+                col = getX();
+                row = getY();
+            }
+            else {
+                this.row = Ex2Utils.ERR;
+                this.col = Ex2Utils.ERR;
+                coordinates = Ex2Utils.ERR_FORM;
+            }
         }
     }
 
@@ -37,7 +44,7 @@ public class CellEntry implements Index2D {
     public boolean isValid() {
         if (row == Ex2Utils.ERR || col == Ex2Utils.ERR) {
             return false;
-        } else if (coordinates.substring(1).matches(".*[a-zA-Z].*")) {
+        } else if (coordinates==null||coordinates.substring(1).matches(".*[a-zA-Z].*")) {
             return false;
         } else if (getX() >= 0 && getX() <= 25 && getY() >= 0 && getY() <= 99) {
             return true;
@@ -90,5 +97,26 @@ public class CellEntry implements Index2D {
                 return Ex2Utils.ERR;
             }
         }
+    }
+
+    /**
+     * The method is getting a x & y coordinets and return the cell name
+     * @param row
+     * @param col
+     * @return the cell name in string
+     */
+    public static String getName(int row, int col) {
+        String ans = "";
+        ans = Ex2Utils.ABC[col]+Integer.toString(row);
+        return ans;
+    }
+
+    /**
+     * the method print the coordinates as cell name
+     * @return CellEntry as a cell name
+     */
+    @Override
+    public String toString() {
+        return getName(row, col);
     }
 }

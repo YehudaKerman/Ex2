@@ -248,7 +248,7 @@ public class Ex2Sheet implements Sheet {
     /**
      * A helper function for depth() that Recursively computes the depth of a given cell (c),
      * while checking for cyclic references.
-     *
+     * the idea to use HashSet came from copilot after I failed to do it with ArrayList.
      * @param c the SCell to compute the depth for.
      * @param checked a set of cells that have been checked.
      * @param inProcess a set of cells that are currently being processed.
@@ -389,6 +389,7 @@ public class Ex2Sheet implements Sheet {
                 catch (Exception e)
                 {
                     ans = Ex2Utils.ERR_FORM;
+                    get(x, y).setType(Ex2Utils.ERR_FORM_FORMAT);
                 }
             }
     /////////////////////
@@ -410,6 +411,9 @@ public class Ex2Sheet implements Sheet {
         if(formula.equals(" ")) {
             throw new Exception();
         }
+        if(SCell.isText(formula)&&!SCell.isCell(formula)) {
+            if(!SCell.isValidForm(formula)) {
+            throw new Exception();}}
         if(formula.charAt(0)=='=') {formula = formula.substring(1);}
         if (SCell.isValidForm(formula)) {
                 if (formula.isEmpty() || formula == null||formula.equals(" ")) {
@@ -450,11 +454,38 @@ public class Ex2Sheet implements Sheet {
                         }
                         else if (formula.charAt(0) == '(' && formula.charAt(formula.length() - 1) == ')')
                         {
-                            compans = computeFormula(formula.substring(1, closeIndex)) + computeFormula(formula.substring(closeIndex + 2, formula.length()));
+                            int j = (lastOp(formula)[1]);
+                            switch (j) {
+                                case 1:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) + computeFormula(formula.substring(closeIndex + 2, formula.length()));
+                                    break;
+                                case 2:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) - computeFormula(formula.substring(closeIndex + 2, formula.length()));
+                                    break;
+                                case 3:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) * computeFormula(formula.substring(closeIndex + 2, formula.length()));
+                                    break;
+                                case 4:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) / computeFormula(formula.substring(closeIndex + 2, formula.length()));
+                            }
                         }
                         else
                         {
-                            compans = computeFormula(formula.substring(1, closeIndex)) + computeFormula(formula.substring(closeIndex + 2, formula.length() - 1));
+                            int j = (lastOp(formula)[1]);
+                            switch (j) {
+                                case 1:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) + computeFormula(formula.substring(closeIndex + 2, formula.length() - 1));
+                                    break;
+                                case 2:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) - computeFormula(formula.substring(closeIndex + 2, formula.length() - 1));
+                                    break;
+                                case 3:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) * computeFormula(formula.substring(closeIndex + 2, formula.length() - 1));
+                                    break;
+                                case 4:
+                                    compans = computeFormula(formula.substring(1, closeIndex)) / computeFormula(formula.substring(closeIndex + 2, formula.length() - 1));
+                            }
+
                         }
                     }
                     else {
