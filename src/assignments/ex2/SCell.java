@@ -115,6 +115,7 @@ public class SCell implements Cell {
         }
     }
 
+
     /**
      * Checks if the given string is valid text.
      * @param s the string to check.

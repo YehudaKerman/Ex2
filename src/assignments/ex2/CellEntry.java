@@ -100,7 +100,7 @@ public class CellEntry implements Index2D {
     }
 
     /**
-     * The method is getting a x & y coordinets and return the cell name
+     * The method is getting a x & y coordinets and return the cell name.
      * @param row
      * @param col
      * @return the cell name in string

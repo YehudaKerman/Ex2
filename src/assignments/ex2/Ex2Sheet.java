@@ -245,6 +245,7 @@ public class Ex2Sheet implements Sheet {
                 return ans;
     }
 
+
     /**
      * A helper function for depth() that Recursively computes the depth of a given cell (c),
      * while checking for cyclic references.
