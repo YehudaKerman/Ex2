@@ -34,3 +34,5 @@ The project simulates a basic spreadsheet application similar to Microsoft Excel
 - **Input Data**: Click on a cell to input data. You can enter numbers, text, or formulas.
 - **Formulas**: Start a formula with `=` followed by arithmetic operations and cell references (e.g., `=A1+B2`).
 - **Save/Load**: Use the provided methods to save the spreadsheet to a file or load it from a file.
+### Exampele
+![image](https://github.com/user-attachments/assets/d994eb4a-3eb5-4690-b655-0acb9f319532)
